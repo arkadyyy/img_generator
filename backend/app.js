@@ -1,6 +1,7 @@
 import express from 'express'
 import jwt from 'jsonwebtoken'
 import { createUser,login } from './auth'
+import { generateImage } from './image'
 const app = express()
 
 const secretKey = process.env.JWT_SECRET_KEY
@@ -30,6 +31,13 @@ app.post('/login',(req,res) => {
         }
         res.status(500).send({error : 'login failed ,check credentials'})
     }
+})
+
+app.post('/generate-image',async(req,res) => {
+    const {prompt , options} = req.body
+    const {image,format} = await generateImage(prompt,options)
+    res.type(format)  
+    res.status(200).send(image)
 })
 
 app.listen(port,() => console.log(`server running on port ${port}`))
