@@ -1,10 +1,12 @@
-import React, { useState } from 'react'
+import React, { useState,useActionState } from 'react'
 import Form from './Form'
 import InputContainer from './InputContainer'
 import Label from './Label'
 import Input from './Input'
+import { useAuthContext } from '../store/auth-context'
 
 const AuthForm = () => {
+    const authCtx = useAuthContext()
     const [authMode,setAuthMode] = useState('login')
     function handleSwitchAuthMode(){
         setAuthMode((prevAuthMode) => {
@@ -15,21 +17,26 @@ const AuthForm = () => {
             }
         })
     }
+    function submitAction(prevState,formData){
+        authCtx.signup()
+    }
+    const [,action,isPending] =  useActionState(submitAction)
   return (
-   <Form className='max-w-[25rem] mx-auto'>
+   <Form action = {submitAction} className='max-w-[25rem] mx-auto'>
     <InputContainer className=''>
         <Label htmlFor="email">Email</Label>
-        <Input type="email" id='email' />
+        <Input type="email" id='email' name = 'email' />
     </InputContainer >
     <InputContainer >
         <Label htmlFor="password">Email</Label>
-        <Input type="password" id='password' />
+        <Input type="password" id='password' name = 'password' />
     </InputContainer >
     <p className='flex flex-col gap-3 mt-4' >
         <button className='bg-sky-400 text-black py-2 rounded-lg hover:bg-sky-500 disabled:cursor-not-allowed disabled:bg-sky-500 disabled:text-stone-500' type='submit'>
-            Submit
+           { !isPending && authMode === 'login' ? 'Log in' : 'Sign up'}
+           {isPending && 'Submitting..'}
         </button>
-        <button type='button' onClick={handleSwitchAuthMode}>
+        <button disabled = {isPending} type='button' onClick={handleSwitchAuthMode}>
             {authMode ==='login' ? 'create a new user' : 'i already have an accout , log in instead'}
         </button>
     </p >
